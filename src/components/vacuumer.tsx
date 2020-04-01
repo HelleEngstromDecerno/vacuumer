@@ -1,7 +1,7 @@
 import React from "react";
 import { Squere } from "./squere";
 
-const squareDimension = 4;
+const squareDimension = 10;
 const room: number[][] = [];
 const timeInterval = 500;
 enum Direction {
@@ -37,8 +37,9 @@ export const Vacuumer: React.FC = () => {
 
   React.useEffect(() => {
     if (checkIfDone()) setShowMessage(true);
-  });
+  }, [setShowMessage, checkIfDone]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   function checkIfDone() {
     let result = false;
     if (cleanCoordinates.length === Math.pow(squareDimension, 2)) result = true;
