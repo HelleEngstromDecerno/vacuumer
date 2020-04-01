@@ -26,16 +26,18 @@ export const Vacuumer: React.FC = () => {
   ]);
   const [isRunning, setIsRunning] = React.useState(false);
   const [timeCounter, setTimeCounter] = React.useState(0);
+  const [showMessage, setShowMessage] = React.useState(false);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      if (isRunning) update();
+      if (isRunning && !checkIfDone()) update();
     }, timeInterval);
     return () => clearTimeout(timer);
-  }, [position, cleanCoordinates, update, isRunning]);
+  }, [position, cleanCoordinates, update, isRunning, checkIfDone]);
 
-  // React.useEffect(() =>
-  // )
+  React.useEffect(() => {
+    if (checkIfDone()) setShowMessage(true);
+  });
 
   function checkIfDone() {
     let result = false;
@@ -74,8 +76,6 @@ export const Vacuumer: React.FC = () => {
       )
     )
       setCleanCoordinates([...cleanCoordinates, newPosition]);
-    if (checkIfDone()) setIsRunning(false);
-    console.log(checkIfDone());
     setTimeCounter(timeCounter + timeInterval);
   }
 
@@ -130,6 +130,12 @@ export const Vacuumer: React.FC = () => {
       <button onClick={start}>Start</button>
       <button onClick={stop}>Stop</button>
       <button onClick={reset}>Reset</button>
+      <div>Time passed: {timeCounter / 1000} s</div>
+      {showMessage ? (
+        <div>Cleaning Complete in {timeCounter / 1000} seconds</div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };
