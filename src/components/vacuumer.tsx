@@ -1,8 +1,9 @@
-import React, { SyntheticEvent } from "react";
+import React from "react";
 import { Squere } from "./squere";
 
-const squareDimension = 10;
+const squareDimension = 4;
 const room: number[][] = [];
+const timeInterval = 500;
 enum Direction {
   Up,
   Down,
@@ -23,11 +24,45 @@ export const Vacuumer: React.FC = () => {
   const [cleanCoordinates, setCleanCoordinates] = React.useState<number[][]>([
     position
   ]);
+  const [isRunning, setIsRunning] = React.useState(false);
+  const [timeCounter, setTimeCounter] = React.useState(0);
 
-  function update(event: SyntheticEvent) {
-    console.log(
-      cleanCoordinates.find(e => JSON.stringify(e) === JSON.stringify([0, 0]))
-    );
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isRunning) update();
+    }, timeInterval);
+    return () => clearTimeout(timer);
+  }, [position, cleanCoordinates, update, isRunning]);
+
+  // React.useEffect(() =>
+  // )
+
+  function checkIfDone() {
+    let result = false;
+    if (cleanCoordinates.length === Math.pow(squareDimension, 2)) result = true;
+    return result;
+  }
+
+  function start(e: React.MouseEvent<HTMLButtonElement>) {
+    setIsRunning(true);
+  }
+
+  function stop(e: React.MouseEvent<HTMLButtonElement>) {
+    setIsRunning(false);
+  }
+
+  function reset(e: React.MouseEvent<HTMLButtonElement>) {
+    setIsRunning(false);
+    let newStartingPosition = [
+      Math.floor(Math.random() * squareDimension),
+      Math.floor(Math.random() * squareDimension)
+    ];
+    setPosition(newStartingPosition);
+    setCleanCoordinates([newStartingPosition]);
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  function update() {
     const possibleDirections = getPossibleDirections();
     let selecteddirection =
       possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
@@ -39,6 +74,9 @@ export const Vacuumer: React.FC = () => {
       )
     )
       setCleanCoordinates([...cleanCoordinates, newPosition]);
+    if (checkIfDone()) setIsRunning(false);
+    console.log(checkIfDone());
+    setTimeCounter(timeCounter + timeInterval);
   }
 
   function getPossibleDirections() {
@@ -67,15 +105,13 @@ export const Vacuumer: React.FC = () => {
 
   return (
     <div>
-      {room.map((row, i) => {
-        return (
-          <table>
+      <table className="room">
+        {room.map((row, i) => {
+          return (
             <tr>
               {row.map((item, j) => {
                 return (
                   <td>
-                    {i}
-                    {j}
                     <Squere
                       isClean={
                         !!cleanCoordinates.find(
@@ -88,12 +124,12 @@ export const Vacuumer: React.FC = () => {
                 );
               })}
             </tr>
-          </table>
-        );
-      })}
-      <button onClick={update}>Update</button>
-      {position}
-      {cleanCoordinates}
+          );
+        })}
+      </table>
+      <button onClick={start}>Start</button>
+      <button onClick={stop}>Stop</button>
+      <button onClick={reset}>Reset</button>
     </div>
   );
 };
